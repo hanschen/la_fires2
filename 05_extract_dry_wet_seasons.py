@@ -14,34 +14,8 @@ INPUT_DIR_DRY_SEASON = Path("output/identify_dry_wet_seasons")
 OUTPUT_DIR = Path("output/extract_dry_wet_seasons")
 
 
-# %% Load data
-
-precip = np.load(INPUT_DIR / "precip.npy")
-time = np.load(INPUT_DIR / "time_precip.npy", allow_pickle=True)
-years = np.array([d.year for d in time])
-
-dry_start = np.load(
-    INPUT_DIR_DRY_SEASON / "dry_start.npy", allow_pickle=True
-).item()
-dry_end = np.load(
-    INPUT_DIR_DRY_SEASON / "dry_end.npy", allow_pickle=True
-).item()
-
-
-# %% Analysis
-
-years = np.unique(years)
-
-# Skip last two years
-years = years[:-2]
-
-# In the code we treat the year as when a season (dry or wet) starts.
-# This makes it easier to deal with.
-
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-for wet_or_dry in ["wet", "dry"]:
-    precip_season = []
+def extract_season(data, time, years, dry_start, dry_end, wet_or_dry):
+    data_season = []
     time_season = []
 
     for year in years:
@@ -53,13 +27,49 @@ for wet_or_dry in ["wet", "dry"]:
             end = dry_start.replace(year=year + 1)
 
         sel = (start <= time) & (time < end)
-        precip_season.append(precip[sel])
+        data_season.append(data[sel])
         time_season.append(time[sel])
 
-    precip_season = np.array(precip_season)
+    data_season = np.array(data_season)
     time_season = np.array(time_season)
 
-    np.save(OUTPUT_DIR / f"{wet_or_dry}_precip", precip_season)
-    np.save(OUTPUT_DIR / f"{wet_or_dry}_time", time_season)
+    return time_season, data_season
+
+
+# %% Load data
+
+precip = np.load(INPUT_DIR / "precip.npy")
+time = np.load(INPUT_DIR / "time_precip.npy", allow_pickle=True)
+years = np.unique([d.year for d in time])
+
+dry_start = np.load(
+    INPUT_DIR_DRY_SEASON / "dry_start.npy", allow_pickle=True
+).item()
+dry_end = np.load(
+    INPUT_DIR_DRY_SEASON / "dry_end.npy", allow_pickle=True
+).item()
+
+
+# %% Analysis
+
+# Skip last two years (incomplete wet season)
+years = years[:-2]
+
+# In the code we treat the year as when a season (dry or wet) starts.
+# This makes it easier to deal with.
+
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+time_dry, precip_dry = extract_season(
+    precip, time, years, dry_start, dry_end, "dry"
+)
+
+time_wet, precip_wet = extract_season(
+    precip, time, years, dry_start, dry_end, "wet"
+)
 
 np.save(OUTPUT_DIR / "years", years)
+np.save(OUTPUT_DIR / f"precip_dry", precip_dry)
+np.save(OUTPUT_DIR / f"time_dry", time_dry)
+np.save(OUTPUT_DIR / f"precip_wet", precip_wet)
+np.save(OUTPUT_DIR / f"time_wet", time_wet)
