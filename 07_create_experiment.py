@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -40,11 +41,17 @@ lons = np.load(INPUT_DIR / "lons.npy")
 
 # %% Select time
 
+margin_for_interpolation = timedelta(days=1)
+start = config.EXP_START - margin_for_interpolation
+end = config.EXP_END + margin_for_interpolation
+
 for variable, values in variables.items():
     time = times[variable]
-    sel = (config.EXP_START <= time) & (time <= config.EXP_END)
+    sel = (start <= time) & (time <= end)
     variables[variable] = values[sel]
     times[variable] = time[sel]
+
+time = times["temp"]
 
 
 # %% Save experiment
@@ -54,7 +61,7 @@ exp_dir = OUTPUT_DIR / EXPERIMENT_NAME
 ioutils.create_netcdf(
     output_dir=exp_dir,
     variables=variables,
-    time=times["temp"],
+    time=time,
     lats=lats,
     lons=lons,
 )
