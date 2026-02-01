@@ -70,7 +70,7 @@ def create_netcdf(output_dir, variables, time, lats, lons, force=False):
 
     dates = [(d.year, d.month, d.day) for d in time]
     dates = unique(dates)
-    dates = dates[1:-1]  # skip margin dates
+    dates = dates[1:-1]  # skip interpolation margin dates
 
     if time[0].hour != 0:
         raise NotImplementedError
