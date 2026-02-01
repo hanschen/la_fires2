@@ -58,7 +58,7 @@ precip_scaled[sel] = scaling_factor * precip[sel]
 
 OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
 np.save(OUTPUT_DIR / "precip", precip_scaled)
-np.save(OUTPUT_DIR / "time", time)
+np.save(OUTPUT_DIR / "time_precip", time)
 
 
 # %% Plot
