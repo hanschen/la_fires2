@@ -69,10 +69,16 @@ if PLOT:
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
 
-    c = ax.pcolormesh(scaling_factor, vmin=0, vmax=2, cmap="RdBu_r")
-    plt.colorbar(c)
+    scaling = (scaling_factor - 1) * 100
 
-    fig.savefig(FIG_DIR / "scaling_factor.png")
+    c = ax.pcolormesh(scaling, vmin=-40, vmax=40, cmap="RdBu_r")
+    cbar = plt.colorbar(c)
+    cbar.set_label("Relative change (%)")
+
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+
+    fig.savefig(FIG_DIR / "scaling.png")
 
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
@@ -84,6 +90,9 @@ if PLOT:
     ax.plot(time_target, csum_precip_clim, "k-", lw=2, label="Climatology")
     ax.plot(time_target, csum_precip, label="Original")
     ax.plot(time_target, csum_precip_scaled, label="Scaled")
+
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Cumulative sum of 3-hourly precipitation (mm/3hr)")
 
     ax.legend()
 
