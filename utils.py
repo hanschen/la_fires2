@@ -41,3 +41,13 @@ def set_small_values_to_zero(array, threshold=0.6e-1):
     res = array.copy()
     res[res <= threshold] = 0
     return res
+
+
+def iterdates(start, end, interval, include_endpoint=False):
+    date = start
+    while date < end:
+        yield date
+        date += interval
+
+    if include_endpoint and date == end:
+        yield date
